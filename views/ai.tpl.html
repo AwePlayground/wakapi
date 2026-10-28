@@ -33,9 +33,9 @@
       <p class="ai-muted text-sm mt-2">Based on heartbeats stored in this Wakapi instance. Times use your Wakapi timezone.</p>
     </div>
     <nav class="ai-range" aria-label="AI activity range">
-      <a href="ai?range=7d" class="{{ if eq .SelectedRange "7d" }}active{{ end }}">7 days</a>
-      <a href="ai?range=30d" class="{{ if eq .SelectedRange "30d" }}active{{ end }}">30 days</a>
-      <a href="ai?range=all" class="{{ if eq .SelectedRange "all" }}active{{ end }}">All time</a>
+      <a href="/ai?range=7d" class="{{ if eq .SelectedRange "7d" }}active{{ end }}">7 days</a>
+      <a href="/ai?range=30d" class="{{ if eq .SelectedRange "30d" }}active{{ end }}">30 days</a>
+      <a href="/ai?range=all" class="{{ if eq .SelectedRange "all" }}active{{ end }}">All time</a>
     </nav>
   </div>
 

@@ -19,6 +19,13 @@ func TestAIOverviewTemplateParses(t *testing.T) {
 	}
 }
 
+func TestAIHandlerUsesPricingPathEnvironment(t *testing.T) {
+	t.Setenv("WAKAPI_AI_PRICING_PATH", "/pricing/ai-pricing.json")
+	if got := NewAIHandler(nil, nil).pricingFile; got != "/pricing/ai-pricing.json" {
+		t.Fatalf("pricing path = %q", got)
+	}
+}
+
 func TestResolveAIOverviewRangeUsesLocalCalendarDays(t *testing.T) {
 	loc, _ := time.LoadLocation("Asia/Shanghai")
 	now := time.Date(2026, 10, 28, 16, 0, 0, 0, loc)

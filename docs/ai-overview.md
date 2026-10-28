@@ -8,11 +8,11 @@ Input tokens are uncached input plus cached input. Signed line changes are shown
 
 ## Cost estimates
 
-`deploy/refresh_ai_pricing.py` fetches public price catalogs from LiteLLM, models.dev and OpenRouter, in that priority order, and writes an atomic normalized cache. The VPS systemd timer refreshes it daily. The application reads the cached file at `WAKAPI_AI_PRICING_FILE` (default `/data/ai-pricing.json`) and does no request-time price fetch.
+`deploy/refresh_ai_pricing.py` fetches public price catalogs from LiteLLM, models.dev and OpenRouter, in that priority order, and writes an atomic normalized cache. The VPS systemd timer refreshes it daily. The application reads the cached file at `WAKAPI_AI_PRICING_PATH` (default `/data/ai-pricing.json`) and does no request-time price fetch. The variable must not end in `_FILE`, which Wakapi reserves for Docker secret loading.
 
 `deploy/ai-model-aliases.json` maps generic heartbeat labels to specific list-price models. The included Opus, Sonnet and Gpt aliases are **assumptions** and should be reviewed when the actual model version changes. Cached input is priced separately; missing model or rate information is counted as unpriced. The page shows pricing coverage and labels every amount as an estimate at current list prices, not a bill or a historical price reconstruction.
 
-For a VPS bind mount, mount `/opt/wakapi/pricing` read-only into the container at `/pricing`, set `WAKAPI_AI_PRICING_FILE=/pricing/ai-pricing.json`, install the refresh script and alias file at `/opt/wakapi`, and enable `deploy/wakapi-ai-pricing.timer` and `.service` under `/etc/systemd/system`. A failed refresh leaves the previous cache intact.
+For a VPS bind mount, mount `/opt/wakapi/pricing` read-only into the container at `/pricing`, set `WAKAPI_AI_PRICING_PATH=/pricing/ai-pricing.json`, install the refresh script and alias file at `/opt/wakapi`, and enable `deploy/wakapi-ai-pricing.timer` and `.service` under `/etc/systemd/system`. A failed refresh leaves the previous cache intact.
 
 ## Historic data
 

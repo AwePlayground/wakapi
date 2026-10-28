@@ -35,7 +35,7 @@ type AIOverviewViewModel struct {
 }
 
 func NewAIHandler(db *gorm.DB, userService services.IUserService) *AIHandler {
-	pricingFile := os.Getenv("WAKAPI_AI_PRICING_FILE")
+	pricingFile := os.Getenv("WAKAPI_AI_PRICING_PATH")
 	if pricingFile == "" {
 		pricingFile = "/data/ai-pricing.json"
 	}
