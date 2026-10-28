@@ -384,12 +384,12 @@
 
     const wakapiData = {}
     wakapiData.projects = {{ .Projects | json }}
-    wakapiData.operatingSystems = mergeChartItems({{ .OperatingSystems | json }}, 'os')
+    wakapiData.operatingSystems = {{ .OperatingSystems | json }}
     wakapiData.editors = {{ .Editors | json }}
     wakapiData.languages = {{ .Languages | json }}
     wakapiData.machines = {{ .Machines | json }}
     wakapiData.labels = {{ .Labels | json }}
-    wakapiData.categories = mergeChartItems({{ .Categories | json }}, 'category')
+    wakapiData.categories = {{ .Categories | json }}
     wakapiData.timelineStats = {{ .Timeline | json }}
     wakapiData.hourlyBreakdown = {{ .HourlyBreakdown | json }}
     wakapiData.hourlyBreakdownFromTime = {{ .HourlyBreakdownFrom | json }}

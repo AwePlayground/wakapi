@@ -1,3 +1,6 @@
+wakapiData.operatingSystems = mergeChartItems(wakapiData.operatingSystems, 'os')
+wakapiData.categories = mergeChartItems(wakapiData.categories, 'category')
+
 // dirty hack to vertically align legends across multiple charts
 // however, without monospace font, it's still not perfectly aligned
 // waiting for https://github.com/chartjs/Chart.js/discussions/9890
