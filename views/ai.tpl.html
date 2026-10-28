@@ -5,73 +5,59 @@
 {{ template "alerts.tpl.html" . }}
 {{ template "menu-main.tpl.html" . }}
 <style>
-  .ai-overview-body { --ai-surface:#182231; --ai-border:#2d3a4b; --ai-ink:#f1f5fa; --ai-muted:#aab8c8; --ai-green:#69e3a0; --ai-blue:#86b3f5; --ai-amber:#f2bd79; }
-  .ai-overview-body .ai-menu-item { background:#1d3d35; }
-  .ai-overview-body .ai-menu-icon { color:var(--ai-green); flex:none; }
-  .aio-main { width:100%; margin-top:48px; color:var(--ai-ink); }
-  .aio-header { display:flex; align-items:end; justify-content:space-between; flex-wrap:wrap; gap:24px; margin-bottom:28px; }
-  .aio-eyebrow { margin:0 0 7px; color:var(--ai-green); font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
-  .aio-header h1 { margin:0; color:#fff; font-size:clamp(30px,3vw,42px); font-weight:700; letter-spacing:-.04em; line-height:1.12; }
-  .aio-intro { margin:10px 0 0; max-width:65ch; color:var(--ai-muted); font-size:15px; line-height:1.5; }
-  .aio-range { display:inline-flex; flex:none; gap:4px; padding:4px; border:1px solid var(--ai-border); border-radius:11px; background:#151d29; }
-  .aio-range a { display:inline-flex; align-items:center; justify-content:center; min-width:76px; min-height:40px; padding:0 14px; border-radius:8px; color:var(--ai-muted); font-size:14px; font-weight:600; white-space:nowrap; transition:background .18s,color .18s; }
-  .aio-range a:hover { color:#fff; background:#2b3949; }
-  .aio-range a.active,.aio-range a.active:hover { color:#fff; background:#226747; }
-  .aio-range a:focus-visible { outline:2px solid var(--ai-green); outline-offset:2px; }
-  .aio-hero { display:grid; grid-template-columns:1.05fr .95fr; gap:16px; margin-bottom:16px; }
-  .aio-card { min-width:0; border:1px solid var(--ai-border); border-radius:16px; background:var(--ai-surface); }
-  .aio-feature { min-height:245px; padding:24px; }
-  .aio-share { background:radial-gradient(circle at 0 0,#203b37,var(--ai-surface) 58%); }
-  .aio-cost { background:radial-gradient(circle at 100% 0,#273447,var(--ai-surface) 58%); }
-  .aio-label { color:var(--ai-muted); font-size:13px; font-weight:600; }
-  .aio-share-content { display:flex; align-items:center; gap:26px; margin-top:22px; }
-  .aio-ring { width:136px; height:136px; flex:none; display:grid; place-items:center; border-radius:50%; background:conic-gradient(var(--ai-green) 0 {{ .AIShare }}%,#344456 {{ .AIShare }}% 100%); }
-  .aio-ring-inner { width:108px; height:108px; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:50%; background:#192533; }
-  .aio-ring strong { color:#fff; font-size:32px; letter-spacing:-.04em; line-height:1; }
-  .aio-ring small { margin-top:4px; color:var(--ai-muted); font-size:11px; }
-  .aio-big { display:block; color:#fff; font-size:clamp(30px,3vw,42px); font-weight:700; letter-spacing:-.04em; line-height:1.1; font-variant-numeric:tabular-nums; }
-  .aio-caption { margin:6px 0 0; color:var(--ai-muted); font-size:13px; line-height:1.45; }
-  .aio-tag { display:inline-block; margin-top:15px; padding:6px 9px; border:1px solid #355b4c; border-radius:6px; color:#b8e9cd; background:#1a3c32; font-size:11px; }
-  .aio-cost-value { display:block; margin-top:17px; color:#fff; font-size:clamp(36px,4vw,52px); font-weight:700; letter-spacing:-.05em; line-height:1; font-variant-numeric:tabular-nums; }
-  .aio-coverage { display:flex; justify-content:space-between; gap:12px; margin:20px 0 8px; color:var(--ai-muted); font-size:12px; }
-  .aio-track { height:8px; overflow:hidden; border-radius:999px; background:#354354; }
-  .aio-track span { display:block; height:100%; border-radius:inherit; background:var(--ai-green); }
-  .aio-note { margin:14px 0 0; color:var(--ai-muted); font-size:12px; line-height:1.5; }
-  .aio-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-bottom:16px; }
-  .aio-metric { min-height:150px; padding:20px 22px; }
-  .aio-metric-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-  .aio-mark { width:10px; height:10px; flex:none; border-radius:3px; background:var(--ai-green); }
-  .aio-metric:nth-child(2) .aio-mark { background:var(--ai-blue); }
-  .aio-metric:nth-child(3) .aio-mark { background:var(--ai-amber); }
-  .aio-metric:nth-child(4) .aio-mark { background:#c09af2; }
-  .aio-metric strong { display:block; margin-top:24px; color:#fff; font-size:clamp(25px,2.4vw,34px); letter-spacing:-.04em; line-height:1; font-variant-numeric:tabular-nums; }
-  .aio-metric small { display:block; margin-top:9px; color:var(--ai-muted); font-size:12px; line-height:1.4; }
-  .aio-section { padding:24px; margin-bottom:16px; }
-  .aio-section-head { display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; }
-  .aio-section-head h2 { margin:0; color:#fff; font-size:19px; font-weight:650; letter-spacing:-.02em; }
-  .aio-section-head span { color:var(--ai-muted); font-size:12px; }
-  .aio-chart { height:220px; display:flex; align-items:end; gap:6px; padding-top:16px; margin-top:20px; border-bottom:1px solid #455265; background:repeating-linear-gradient(to top,transparent 0,transparent calc(25% - 1px),#273447 calc(25% - 1px),#273447 25%); }
-  .aio-chart-day { height:100%; flex:1; min-width:4px; display:flex; align-items:end; }
-  .aio-chart-bar { display:block; width:100%; min-height:2px; border-radius:5px 5px 0 0; background:linear-gradient(180deg,#81efad,#39ae75); }
-  .aio-chart-dates { display:flex; justify-content:space-between; gap:12px; margin-top:10px; color:var(--ai-muted); font-size:11px; }
-  .aio-empty { margin:24px 0 0; color:var(--ai-muted); font-size:14px; }
-  .aio-breakdown { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
-  .aio-list { margin-top:16px; }
-  .aio-list-row { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:baseline; gap:18px; padding:12px 0; border-bottom:1px solid var(--ai-border); }
-  .aio-list-row:last-child { border-bottom:0; }
-  .aio-list-name { min-width:0; overflow:hidden; color:#e4edf5; font-size:14px; font-weight:550; text-overflow:ellipsis; white-space:nowrap; }
-  .aio-list-number { color:#fff; font-size:14px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; }
-  .aio-list-detail { display:block; margin-top:2px; color:var(--ai-muted); font-size:11px; font-weight:400; }
-  .aio-method { margin:4px 0 28px; padding:18px 22px; border-left:3px solid #426c5a; border-radius:0 10px 10px 0; background:#192432; color:var(--ai-muted); font-size:12px; line-height:1.6; }
-  .aio-method strong { color:#dce8f1; }
-  @media(max-width:900px) { .aio-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-  @media(max-width:700px) { .aio-main { margin-top:30px; } .aio-header { align-items:stretch; } .aio-hero,.aio-breakdown { grid-template-columns:1fr; } .aio-feature { min-height:0; } .aio-range { width:100%; } .aio-range a { flex:1; min-width:0; } }
-  @media(max-width:480px) { .aio-metrics { gap:10px; } .aio-metric { min-height:132px; padding:16px; } .aio-metric strong { margin-top:19px; font-size:27px; } .aio-feature,.aio-section { padding:18px; } .aio-share-content { gap:16px; } .aio-ring { width:112px; height:112px; } .aio-ring-inner { width:88px; height:88px; } .aio-ring strong { font-size:27px; } .aio-chart { gap:3px; } }
-  @media(prefers-reduced-motion:reduce) { .aio-range a { transition:none; } }
+  .aio-main { width: 100%; margin-top: 48px; color: #e5e5e9; }
+  .aio-header { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 24px; margin-bottom: 34px; }
+  .aio-eyebrow { margin: 0 0 7px; color: #a1a1aa; font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; }
+  .aio-header h1 { margin: 0; color: #f5f5f6; font-size: clamp(29px, 2.7vw, 38px); font-weight: 500; letter-spacing: -.025em; line-height: 1.16; }
+  .aio-intro { margin: 10px 0 0; max-width: 65ch; color: #a7a7af; font-size: 14px; line-height: 1.6; }
+  .aio-range { display: inline-flex; gap: 20px; border-bottom: 1px solid #414148; }
+  .aio-range a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; border-bottom: 1px solid transparent; color: #a1a1aa; font-size: 13px; font-weight: 400; white-space: nowrap; }
+  .aio-range a:hover { color: #e4e4e7; }
+  .aio-range a.active { border-color: #e4e4e7; color: #f4f4f5; font-weight: 500; }
+  .aio-range a:focus-visible { outline: 1px solid #e4e4e7; outline-offset: 2px; }
+  .aio-hero { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; margin-bottom: 38px; border-top: 1px solid #414148; border-bottom: 1px solid #414148; }
+  .aio-feature { min-width: 0; padding: 24px 0 26px; }
+  .aio-feature + .aio-feature { border-left: 1px solid #414148; padding-left: 32px; }
+  .aio-label { color: #a9a9b2; font-size: 12px; font-weight: 400; }
+  .aio-share-content { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-top: 14px; }
+  .aio-big { display: block; color: #f4f4f5; font-size: clamp(35px, 3.4vw, 48px); font-weight: 500; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .aio-secondary-number { color: #d8d8df; font-size: 20px; font-weight: 400; font-variant-numeric: tabular-nums; }
+  .aio-caption { margin: 7px 0 0; color: #a2a2ac; font-size: 12px; line-height: 1.5; }
+  .aio-tag { display: block; margin-top: 13px; color: #92929e; font-size: 11px; }
+  .aio-cost-value { display: block; margin-top: 15px; color: #f4f4f5; font-size: clamp(35px, 3.4vw, 48px); font-weight: 500; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .aio-coverage { display: flex; justify-content: space-between; gap: 14px; margin: 18px 0 7px; color: #aaaab3; font-size: 11px; }
+  .aio-track { height: 2px; background: #3e3e45; }
+  .aio-track span { display: block; height: 100%; background: #a8b8ae; }
+  .aio-note { margin: 12px 0 0; color: #8f8f9a; font-size: 11px; line-height: 1.55; }
+  .aio-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin-bottom: 52px; }
+  .aio-metric { min-width: 0; padding: 0 0 20px; border-bottom: 1px solid #3e3e45; }
+  .aio-metric strong { display: block; margin-top: 15px; color: #e9e9ec; font-size: clamp(26px, 2.4vw, 34px); font-weight: 400; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .aio-metric small { display: block; margin-top: 9px; color: #a0a0aa; font-size: 11px; line-height: 1.5; }
+  .aio-mark { display: none; }
+  .aio-section { margin-bottom: 48px; }
+  .aio-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-bottom: 13px; border-bottom: 1px solid #414148; }
+  .aio-section-head h2 { margin: 0; color: #e7e7eb; font-size: 17px; font-weight: 500; }
+  .aio-section-head span { color: #92929d; font-size: 11px; }
+  .aio-chart { height: 215px; display: flex; align-items: end; gap: 5px; padding-top: 16px; margin-top: 20px; border-bottom: 1px solid #55555d; background: repeating-linear-gradient(to top, transparent 0, transparent calc(25% - 1px), #303036 calc(25% - 1px), #303036 25%); }
+  .aio-chart-day { height: 100%; flex: 1; min-width: 4px; display: flex; align-items: end; }
+  .aio-chart-bar { display: block; width: 100%; min-height: 1px; background: #a8b8ae; }
+  .aio-chart-dates { display: flex; justify-content: space-between; gap: 12px; margin-top: 9px; color: #92929d; font-size: 11px; }
+  .aio-empty { margin: 20px 0 0; color: #a1a1aa; font-size: 13px; }
+  .aio-breakdown { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+  .aio-list { margin-top: 4px; }
+  .aio-list-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 16px; padding: 12px 0; border-bottom: 1px solid #34343a; }
+  .aio-list-name { min-width: 0; overflow: hidden; color: #dedee3; font-size: 13px; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
+  .aio-list-number { color: #d7d7dc; font-size: 13px; font-weight: 400; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .aio-list-detail { display: block; margin-top: 2px; color: #898995; font-size: 11px; }
+  .aio-method { margin: 0 0 32px; padding-top: 16px; border-top: 1px solid #414148; color: #92929d; font-size: 11px; line-height: 1.65; }
+  .aio-method strong { color: #b8b8c0; font-weight: 500; }
+  @media(max-width: 900px) { .aio-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media(max-width: 700px) { .aio-main { margin-top: 32px; } .aio-header { align-items: stretch; } .aio-hero, .aio-breakdown { grid-template-columns: 1fr; } .aio-hero { gap: 0; } .aio-feature + .aio-feature { border-left: 0; border-top: 1px solid #414148; padding-left: 0; } .aio-range { width: 100%; justify-content: space-between; } }
+  @media(max-width: 480px) { .aio-metrics { gap: 18px; } .aio-chart { gap: 3px; } }
 </style>
 <main class="aio-main grow" id="ai-overview-page">
   <header class="aio-header">
-    <div><p class="aio-eyebrow">Personal activity · AI analytics</p><h1>AI Overview</h1><p class="aio-intro">Your AI-assisted coding activity, based on heartbeats stored in this Wakapi instance.</p></div>
+    <div><p class="aio-eyebrow">Personal activity</p><h1>AI Overview</h1><p class="aio-intro">AI-assisted coding activity from the heartbeats stored in this Wakapi instance.</p></div>
     <nav class="aio-range" aria-label="AI activity range">
       <a href="/ai?range=7d" class="{{ if eq .SelectedRange "7d" }}active{{ end }}" {{ if eq .SelectedRange "7d" }}aria-current="page"{{ end }}>7 days</a>
       <a href="/ai?range=30d" class="{{ if eq .SelectedRange "30d" }}active{{ end }}" {{ if eq .SelectedRange "30d" }}aria-current="page"{{ end }}>30 days</a>
@@ -83,9 +69,10 @@
     <section class="aio-card aio-feature aio-share" aria-label="AI share of tracked line changes">
       <span class="aio-label">AI share of tracked line changes</span>
       <div class="aio-share-content">
-        <div class="aio-ring" role="img" aria-label="{{ .AIShare }} percent of attributed line changes were AI-assisted"><div class="aio-ring-inner"><strong>{{ .AIShare }}%</strong><small>AI-assisted</small></div></div>
-        <div><strong class="aio-big">{{ .Compact $totals.AILineChanges }}</strong><p class="aio-caption">AI line changes in this period</p><span class="aio-tag">{{ .Compact $totals.HumanLinesAdded }} human additions · {{ .Compact $totals.HumanLinesDeleted }} deletions</span></div>
+        <div><strong class="aio-big">{{ .AIShare }}%</strong><p class="aio-caption">of attributed line changes</p></div>
+        <div><strong class="aio-secondary-number">{{ .Compact $totals.AILineChanges }}</strong><p class="aio-caption">AI line changes</p></div>
       </div>
+      <span class="aio-tag">{{ .Compact $totals.HumanLinesAdded }} human additions · {{ .Compact $totals.HumanLinesDeleted }} human deletions</span>
     </section>
     <section class="aio-card aio-feature aio-cost" aria-label="Estimated AI cost">
       <span class="aio-label">Estimated token cost</span>

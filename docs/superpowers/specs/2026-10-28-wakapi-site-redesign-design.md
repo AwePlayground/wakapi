@@ -6,11 +6,11 @@ Redesign the whole user-facing Wakapi UI in the AwePlayground fork: Dashboard an
 
 ## Direction
 
-Use a modern data workspace style: deep neutral navy background, calm layered surfaces, clear borders, green for actions and AI activity, restrained secondary colors for metrics. Replace the current dense, uneven blocks with consistent 8px-based spacing, 12–16px radii, clearer page headings, compact navigation, and tabular numeric emphasis. Use system fonts and local SVGs; add no third-party runtime requests.
+Use the quiet, restrained visual language of the user's [Token Usage reference](https://blog.ax0x.ai/token-usage): near-black neutral background, fine gray rules, IBM Plex Sans, regular to medium weights, minimal color, flat surfaces and 4–7px radii. Replace dense, uneven blocks with consistent spacing and tabular numeric emphasis. Self-host the font and use local SVGs; add no third-party runtime requests.
 
 ## Components
 
-- Global tokens and reusable CSS for navigation, cards, controls, forms, tabs, charts, dropdowns, footer, hover and focus states.
+- Global neutral tokens and reusable CSS for navigation, flat panels, controls, forms, tabs, charts, dropdowns, footer, hover and focus states.
 - Page-specific layout rules for the Dashboard, Projects, Settings, AI Overview, Leaderboard, Setup, and public pages.
 - Each primary page gets one clear heading and description; secondary text has consistent contrast and line length.
 - Mobile layout keeps navigation usable, cards in one or two columns, and avoids horizontal scrolling.
