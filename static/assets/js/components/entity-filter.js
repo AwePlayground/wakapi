@@ -1,34 +1,64 @@
-function EntityFilter({type, options, selection}) {
+function SummaryFilters({options}) {
+    const definitions = [
+        {type: 'project', label: 'Project'},
+        {type: 'language', label: 'Language'},
+        {type: 'machine', label: 'Machine'},
+        {type: 'label', label: 'Label'},
+        {type: 'category', label: 'Category'}
+    ]
+    const query = new URLSearchParams(window.location.search)
+    const selected = Object.fromEntries(definitions.map(({type}) => [type, query.get(type) === '-' ? 'unknown' : query.get(type)]))
     return {
-        $template: '#entity-filter-template',
+        $template: '#summary-filters-template',
         $delimiters: ['${', '}'],
-        type: type,
-        options: options,
-        selection: selection,
-        display() {
-            return this.type.capitalize()
+        definitions,
+        options,
+        selected,
+        open: false,
+        activeType: 'project',
+        search: '',
+        selectedEntries() {
+            return this.definitions.filter(({type}) => this.selected[type]).map(({type, label}) => ({type, label, value: this.selected[type]}))
         },
-        onSelectionUpdated(e) {
-            this.selection = e.target.value == 'null' ? null : e.target.value
-            this.$nextTick(() => {
-                const query = new URLSearchParams(window.location.search)
-                const val = this.selection === 'unknown' ? '-' : this.selection  // will break if the project is actually named "unknown"
-                if (this.selection) query.set(type, val)
-                else query.delete(type)
-                window.location.search = query.toString()
-            })
+        activeLabel() {
+            return this.definitions.find(({type}) => type === this.activeType)?.label || 'Filter'
+        },
+        filteredOptions() {
+            const needle = this.search.trim().toLocaleLowerCase()
+            const values = this.options[this.activeType] || []
+            return values.filter(value => String(value).toLocaleLowerCase().includes(needle)).slice(0, 100)
+        },
+        toggle() {
+            this.open = !this.open
+            if (this.open) this.$nextTick(() => document.getElementById('summary-filter-search')?.focus())
+        },
+        selectType(type) {
+            this.activeType = type
+            this.search = ''
+            this.$nextTick(() => document.getElementById('summary-filter-search')?.focus())
+        },
+        update(type, value) {
+            const query = new URLSearchParams(window.location.search)
+            if (value) query.set(type, value === 'unknown' ? '-' : value)
+            else query.delete(type)
+            window.location.search = query.toString()
+        },
+        clearAll() {
+            const query = new URLSearchParams(window.location.search)
+            this.definitions.forEach(({type}) => query.delete(type))
+            window.location.search = query.toString()
         },
         mounted() {
-            const query = new URLSearchParams(window.location.search)
-            if (query.has(type)) {
-                const val = query.get(type) === '-' ? 'unknown' : query.get(type)
-                if (!this.options.includes(val)) {
-                    this.options = [val, ...this.options]
-                    this.$nextTick(() => { this.selection = val })
-                } else {
-                    this.selection = val
+            const root = document.getElementById('summary-filters')
+            document.addEventListener('pointerdown', event => {
+                if (!root.contains(event.target)) this.open = false
+            })
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape' && this.open) {
+                    this.open = false
+                    document.getElementById('summary-filter-trigger')?.focus()
                 }
-            }
+            })
         }
     }
 }

@@ -1,9 +1,33 @@
-<template id="entity-filter-template">
-    <div :id="type + '-filter-form'" class="entity-filter-control">
-        <label :for="'select-' + type + '-filter'"><span class="iconify inline mr-1" data-icon="mdi:filter"></span> ${type}</label>
-        <select name="project" :id="'select-' + type + '-filter'" class="select-default" v-model="selection" @input="onSelectionUpdated">
-            <option :value="null">Filter by ${type} ...</option>
-            <option v-for="o in options" :value="o">{{ "{{" }}o{{ "}}" }}</option>
-        </select>
+<template id="summary-filters-template">
+    <div class="wk-summary-filters" id="summary-filters">
+        <button type="button" class="wk-filter-trigger" id="summary-filter-trigger" @click="toggle" :aria-expanded="open" aria-controls="summary-filter-popover">
+            <span class="iconify" data-icon="mdi:filter-variant"></span>
+            <span>Filter</span>
+            <span v-if="selectedEntries().length" class="wk-filter-count">${selectedEntries().length}</span>
+            <span class="iconify wk-chevron" data-icon="akar-icons:chevron-down"></span>
+        </button>
+        <div class="wk-filter-popover" :class="{'is-open': open}" id="summary-filter-popover" :aria-hidden="!open">
+            <div class="wk-filter-types" aria-label="Filter type">
+                <button type="button" v-for="definition in definitions" :key="definition.type" :class="{'is-active': activeType === definition.type}" @click="selectType(definition.type)">
+                    ${definition.label}<span v-if="selected[definition.type]" class="wk-filter-dot"></span>
+                </button>
+            </div>
+            <div class="wk-filter-options">
+                <label for="summary-filter-search">${activeLabel()}</label>
+                <input id="summary-filter-search" type="search" v-model="search" :placeholder="'Search ' + activeLabel().toLowerCase() + '…'" autocomplete="off">
+                <div class="wk-filter-option-list">
+                    <button type="button" v-for="value in filteredOptions()" :key="value" :class="{'is-selected': selected[activeType] === value}" @click="update(activeType, value)">
+                        <span class="wk-option-name">${value}</span><span v-if="selected[activeType] === value" aria-hidden="true">✓</span>
+                    </button>
+                    <p v-if="!filteredOptions().length">No matching options</p>
+                </div>
+            </div>
+        </div>
+        <div class="wk-active-filters" v-if="selectedEntries().length">
+            <button type="button" class="wk-filter-chip" v-for="entry in selectedEntries()" :key="entry.type" @click="update(entry.type, null)" :title="'Remove ' + entry.label + ' filter'">
+                <span>${entry.label}: <strong>${entry.value}</strong></span><span aria-hidden="true">×</span>
+            </button>
+            <button type="button" class="wk-clear-filters" @click="clearAll">Clear all</button>
+        </div>
     </div>
 </template>

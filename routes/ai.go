@@ -164,3 +164,19 @@ func (vm *AIOverviewViewModel) DailyBarHeight(day *services.AIDailyActivity) int
 	}
 	return max(4, int(math.Round(float64(value)*100/float64(vm.MaxDailyLines))))
 }
+
+func (vm *AIOverviewViewModel) ShortDay(date string) string {
+	parsed, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		return date
+	}
+	return parsed.Format("01/02")
+}
+
+func (vm *AIOverviewViewModel) HalfDailyLines() int64 {
+	return vm.MaxDailyLines / 2
+}
+
+func (vm *AIOverviewViewModel) ShowDailyLabel(index int) bool {
+	return vm.SelectedRange == "7d" || index%5 == 0 || index == len(vm.ChartDays)-1
+}
