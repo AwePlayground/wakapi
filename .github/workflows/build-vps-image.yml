@@ -1,0 +1,30 @@
+name: Build VPS image
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64
+          tags: |
+            ghcr.io/aweplayground/wakapi:staging
+            ghcr.io/aweplayground/wakapi:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/AwePlayground/wakapi
