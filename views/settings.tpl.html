@@ -14,7 +14,7 @@
 </script>
 <script type="module" src="assets/js/components/settings.js"></script>
 
-<body class="bg-background text-muted p-4 pt-10 flex flex-col min-h-screen max-w-screen-xl mx-auto justify-center">
+<body data-page="settings" class="bg-background text-muted p-4 pt-10 flex flex-col min-h-screen max-w-screen-xl mx-auto justify-center">
 <style>
     .inline-bullet-list li a {
         text-decoration: underline;
@@ -35,6 +35,7 @@
 
 <main class="mt-10 grow flex justify-center w-full" v-scope @vue:mounted="mounted" id="settings-page">
     <div class="flex flex-col grow mt-10 max-w-full">
+        <span class="wk-eyebrow">Your workspace</span>
         <h1 class="font-semibold text-3xl text-primary m-0 mb-4">Settings</h1>
 
         <ul class="flex gap-x-4 mb-16 text-muted flex-wrap sm:flex-nowrap">

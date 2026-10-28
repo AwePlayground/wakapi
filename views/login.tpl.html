@@ -5,7 +5,7 @@
 
 <script type="module" src="assets/vendor/simplewebauthn.umd.min.js"></script>
 <script src="assets/js/login.js"></script>
-<body class="bg-background text-muted p-4 pt-10 flex flex-col min-h-screen max-w-screen-lg mx-auto justify-center">
+<body data-page="login" class="bg-background text-muted p-4 pt-10 flex flex-col min-h-screen max-w-screen-lg mx-auto justify-center">
 
 {{ template "header.tpl.html" . }}
 
@@ -14,7 +14,7 @@
 <main class="mt-10 grow flex justify-center w-full">
     <div class="grow max-w-lg mt-10">
         <div class="mb-8">
-            <h1 class="h1">Welcome!</h1>
+            <h1 class="h1">Welcome back</h1>
             <span class="text-secondary">Log in to continue using Wakapi. First time? Check out the <a href="setup" class="text-foreground hover:text-secondary">setup instructions</a>.</span>
         </div>
         {{ if not .DisableLocalAuth }}

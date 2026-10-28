@@ -7,7 +7,7 @@
     const defaultTab = 'total'
 </script>
 
-<body class="relative bg-background text-muted p-4 pt-10 flex flex-col min-h-screen {{ if .User }} max-w-screen-xl {{ else }} max-w-screen-lg {{end}} mx-auto justify-center">
+<body data-page="leaderboard" class="relative bg-background text-muted p-4 pt-10 flex flex-col min-h-screen {{ if .User }} max-w-screen-xl {{ else }} max-w-screen-lg {{end}} mx-auto justify-center">
 
 {{ template "alerts.tpl.html" . }}
 
