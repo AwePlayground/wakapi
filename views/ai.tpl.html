@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 {{ template "head.tpl.html" . }}
-<body class="relative bg-background text-foreground p-4 pt-10 flex flex-col min-h-screen max-w-screen-xl mx-auto justify-center">
+<body class="ai-overview-body relative bg-background text-foreground p-4 pt-10 flex flex-col min-h-screen max-w-screen-xl mx-auto justify-center">
 {{ template "alerts.tpl.html" . }}
 {{ template "menu-main.tpl.html" . }}
 
@@ -18,24 +18,29 @@
   .ai-row:last-child { border-bottom: 0; }
   .ai-progress { height: 8px; border-radius: 999px; background: #2a3346; overflow: hidden; }
   .ai-progress > span { display: block; height: 100%; background: #65df99; }
-  .ai-range { display: flex; gap: 6px; flex-wrap: wrap; }
-  .ai-range a { padding: 7px 12px; border-radius: 8px; color: #a6b1c3; background: #202839; }
-  .ai-range a.active { color: #fff; background: #235d47; }
+  .ai-overview-body .ai-menu-item { background: #1d3d35; }
+  .ai-overview-body .ai-menu-item .iconify { color: #65df99; }
+  .ai-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 24px; }
+  .ai-range { display: inline-flex; flex: none; align-items: center; align-self: center; gap: 4px; padding: 4px; border: 1px solid #2e384d; border-radius: 10px; background: #171d2b; }
+  .ai-range a { display: inline-flex; align-items: center; justify-content: center; height: 36px; min-width: 72px; padding: 0 14px; border-radius: 7px; color: #a6b1c3; font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .ai-range a:hover { color: #fff; background: #283246; }
+  .ai-range a.active, .ai-range a.active:hover { color: #fff; background: #235d47; }
+  .ai-range a:focus-visible { outline: 2px solid #65df99; outline-offset: 2px; }
   @media (max-width: 900px) { .ai-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 640px) { .ai-grid, .ai-split { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { .ai-grid, .ai-split { grid-template-columns: 1fr; } .ai-header { align-items: stretch; } .ai-range { width: 100%; } .ai-range a { flex: 1; min-width: 0; } }
 </style>
 
 <main class="mt-10 grow w-full" id="ai-overview-page">
-  <div class="flex justify-between items-start flex-wrap gap-4 mb-6">
+  <div class="ai-header">
     <div>
       <p class="ai-muted text-sm">Personal activity</p>
       <h1 class="h1">AI Overview</h1>
       <p class="ai-muted text-sm mt-2">Based on heartbeats stored in this Wakapi instance. Times use your Wakapi timezone.</p>
     </div>
     <nav class="ai-range" aria-label="AI activity range">
-      <a href="/ai?range=7d" class="{{ if eq .SelectedRange "7d" }}active{{ end }}">7 days</a>
-      <a href="/ai?range=30d" class="{{ if eq .SelectedRange "30d" }}active{{ end }}">30 days</a>
-      <a href="/ai?range=all" class="{{ if eq .SelectedRange "all" }}active{{ end }}">All time</a>
+      <a href="/ai?range=7d" class="{{ if eq .SelectedRange "7d" }}active{{ end }}" {{ if eq .SelectedRange "7d" }}aria-current="page"{{ end }}>7 days</a>
+      <a href="/ai?range=30d" class="{{ if eq .SelectedRange "30d" }}active{{ end }}" {{ if eq .SelectedRange "30d" }}aria-current="page"{{ end }}>30 days</a>
+      <a href="/ai?range=all" class="{{ if eq .SelectedRange "all" }}active{{ end }}" {{ if eq .SelectedRange "all" }}aria-current="page"{{ end }}>All time</a>
     </nav>
   </div>
 

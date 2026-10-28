@@ -39,6 +39,7 @@ let icons = [
     'bi:people-fill',
     'fluent:data-bar-horizontal-24-filled',
     'ic:round-dashboard',
+    'ph:sparkle-fill',
     'ci:settings-filled',
     'akar-icons:chevron-down',
     'akar-icons:chevron-left',
