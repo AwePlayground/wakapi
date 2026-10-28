@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+{{ template "head.tpl.html" . }}
+<body class="relative bg-background text-foreground p-4 pt-10 flex flex-col min-h-screen max-w-screen-xl mx-auto justify-center">
+{{ template "alerts.tpl.html" . }}
+{{ template "menu-main.tpl.html" . }}
+
+<style>
+  .ai-panel { background: #171d2b; border: 1px solid #283246; border-radius: 14px; padding: 20px; }
+  .ai-muted { color: #a6b1c3; }
+  .ai-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .ai-split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .ai-value { font-size: 1.85rem; line-height: 1.15; font-weight: 700; letter-spacing: -.02em; }
+  .ai-day-chart { height: 190px; display: flex; align-items: end; gap: 5px; border-bottom: 1px solid #3b475d; padding: 12px 0 0; }
+  .ai-day { flex: 1; min-width: 8px; display: flex; flex-direction: column; justify-content: end; height: 100%; }
+  .ai-day-bar { width: 100%; min-height: 2px; border-radius: 4px 4px 0 0; background: linear-gradient(180deg, #65df99, #2eaa70); }
+  .ai-row { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #283246; }
+  .ai-row:last-child { border-bottom: 0; }
+  .ai-progress { height: 8px; border-radius: 999px; background: #2a3346; overflow: hidden; }
+  .ai-progress > span { display: block; height: 100%; background: #65df99; }
+  .ai-range { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ai-range a { padding: 7px 12px; border-radius: 8px; color: #a6b1c3; background: #202839; }
+  .ai-range a.active { color: #fff; background: #235d47; }
+  @media (max-width: 900px) { .ai-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 640px) { .ai-grid, .ai-split { grid-template-columns: 1fr; } }
+</style>
+
+<main class="mt-10 grow w-full" id="ai-overview-page">
+  <div class="flex justify-between items-start flex-wrap gap-4 mb-6">
+    <div>
+      <p class="ai-muted text-sm">Personal activity</p>
+      <h1 class="h1">AI Overview</h1>
+      <p class="ai-muted text-sm mt-2">Based on heartbeats stored in this Wakapi instance. Times use your Wakapi timezone.</p>
+    </div>
+    <nav class="ai-range" aria-label="AI activity range">
+      <a href="ai?range=7d" class="{{ if eq .SelectedRange "7d" }}active{{ end }}">7 days</a>
+      <a href="ai?range=30d" class="{{ if eq .SelectedRange "30d" }}active{{ end }}">30 days</a>
+      <a href="ai?range=all" class="{{ if eq .SelectedRange "all" }}active{{ end }}">All time</a>
+    </nav>
+  </div>
+
+  {{ $totals := .Overview.Totals }}
+  <section class="ai-panel mb-4" aria-label="AI share of line changes">
+    <div class="flex justify-between items-center gap-4 flex-wrap">
+      <div><p class="ai-muted text-sm">AI share of tracked line changes</p><p class="ai-value mt-1">{{ .AIShare }}%</p></div>
+      <div class="text-right"><p class="text-lg font-semibold">{{ .Compact $totals.AILineChanges }} AI lines</p><p class="ai-muted text-sm">{{ .Compact $totals.HumanLinesAdded }} human additions · {{ .Compact $totals.HumanLinesDeleted }} human deletions</p></div>
+    </div>
+    <div class="ai-progress mt-4"><span style="width: {{ .AIShare }}%"></span></div>
+    <p class="ai-muted text-xs mt-3">Line attribution depends on the editor and AI tool sending these fields. Missing human events are not treated as zero activity.</p>
+  </section>
+
+  <section class="ai-grid mb-4" aria-label="AI activity metrics">
+    <div class="ai-panel"><p class="ai-muted text-sm">Input tokens</p><p class="ai-value mt-2">{{ .Compact $totals.TotalInputTokens }}</p><p class="ai-muted text-xs mt-2">{{ .Compact $totals.CachedInputTokens }} cached · {{ .Compact $totals.InputTokens }} uncached</p></div>
+    <div class="ai-panel"><p class="ai-muted text-sm">Output tokens</p><p class="ai-value mt-2">{{ .Compact $totals.OutputTokens }}</p><p class="ai-muted text-xs mt-2">Reported by AI tools</p></div>
+    <div class="ai-panel"><p class="ai-muted text-sm">Prompts</p><p class="ai-value mt-2">{{ .Compact $totals.PromptEvents }}</p><p class="ai-muted text-xs mt-2">{{ .Compact $totals.PromptChars }} typed characters</p></div>
+    <div class="ai-panel"><p class="ai-muted text-sm">AI sessions</p><p class="ai-value mt-2">{{ .Compact $totals.AISessions }}</p><p class="ai-muted text-xs mt-2">Distinct reported session IDs</p></div>
+  </section>
+
+  <section class="ai-panel mb-4" aria-label="Estimated AI cost">
+    <div class="flex justify-between items-start gap-4 flex-wrap">
+      <div>
+        <p class="ai-muted text-sm">Estimated token cost at current list prices</p>
+        {{ if and .HasPricing (gt .Cost.PricedTokens 0) }}
+        <p class="ai-value mt-1">{{ .Dollars .Cost.EstimatedUSD }}</p>
+        {{ else }}<p class="ai-value mt-1">Unavailable</p>{{ end }}
+      </div>
+      <div class="text-right text-sm"><p>{{ .CostCoverage }}% of tokens priced</p><p class="ai-muted">{{ .Compact .Cost.UnpricedTokens }} unpriced tokens</p></div>
+    </div>
+    <div class="ai-progress mt-4"><span style="width: {{ .CostCoverage }}%"></span></div>
+    <p class="ai-muted text-xs mt-3">Estimate only, not an invoice. Generic names such as Opus, Sonnet and Gpt use declared model assumptions. Historical activity uses today's prices. {{ if .HasPricing }}Catalog updated {{ .PriceUpdatedAt }}.{{ else }}The server has no price catalog yet.{{ end }}</p>
+  </section>
+
+  <section class="ai-panel mb-4" aria-label="Daily AI line changes">
+    <div class="flex justify-between items-center gap-4"><h2 class="text-xl font-semibold">AI line changes by day</h2><span class="ai-muted text-sm">{{ if eq .SelectedRange "all" }}Most recent 30 active days{{ else }}{{ .RangeLabel }}{{ end }}</span></div>
+    {{ if .ChartDays }}
+    <div class="ai-day-chart">
+      {{ range .ChartDays }}<div class="ai-day" title="{{ .Date }}: {{ .AILineChanges }} AI line changes, {{ .HumanLinesAdded }} human additions, {{ .HumanLinesDeleted }} human deletions"><div class="ai-day-bar" style="height: {{ $.DailyBarHeight . }}%"></div></div>{{ end }}
+    </div>
+    <div class="flex justify-between ai-muted text-xs mt-2"><span>{{ (index .ChartDays 0).Date }}</span><span>{{ (index .ChartDays (add (len .ChartDays) -1)).Date }}</span></div>
+    {{ else }}<p class="ai-muted text-sm mt-4">No AI line activity in this range.</p>{{ end }}
+  </section>
+
+  <div class="ai-split mb-4">
+    <section class="ai-panel" aria-label="AI models"><h2 class="text-xl font-semibold mb-3">AI models</h2>
+      {{ if .Overview.Models }}{{ range $i, $model := .Overview.Models }}{{ if lt $i 8 }}
+      <div class="ai-row"><span class="truncate">{{ $model.Name }}</span><span class="text-right"><strong>{{ $.Compact $model.AILineChanges }}</strong> <span class="ai-muted text-xs">lines · {{ $.Compact $model.TotalInputTokens }} input tokens</span></span></div>
+      {{ end }}{{ end }}{{ else }}<p class="ai-muted text-sm">No model data in this range.</p>{{ end }}
+    </section>
+    <section class="ai-panel" aria-label="Top AI-assisted projects"><h2 class="text-xl font-semibold mb-3">Top AI-assisted projects</h2>
+      {{ if .Overview.Projects }}{{ range $i, $project := .Overview.Projects }}{{ if lt $i 8 }}
+      <div class="ai-row"><span class="truncate">{{ $project.Name }}</span><span class="text-right"><strong>{{ $.Compact $project.AILineChanges }}</strong> <span class="ai-muted text-xs">AI lines</span></span></div>
+      {{ end }}{{ end }}{{ else }}<p class="ai-muted text-sm">No project data in this range.</p>{{ end }}
+    </section>
+  </div>
+
+  <section class="ai-panel mb-8"><h2 class="text-lg font-semibold">About these numbers</h2><p class="ai-muted text-sm mt-2">WakaTime's all-user average, human review rate and follow-up rate are omitted because their exact definitions and population data are not available from self-hosted heartbeats. Token and line totals reflect the fields reported by your tools.</p></section>
+</main>
+{{ template "footer.tpl.html" . }}
+{{ template "foot.tpl.html" . }}
+</body>
+</html>

@@ -1,0 +1,8 @@
+[Unit]
+Description=Refresh Wakapi AI model pricing cache
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/wakapi/refresh_ai_pricing.py --output /opt/wakapi/pricing/ai-pricing.json --aliases /opt/wakapi/ai-model-aliases.json
