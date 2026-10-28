@@ -20,7 +20,7 @@
 
 {{ if .Summary }}
 
-<div id="summary-page" class="grow" v-scope @vue:mounted="mounted({ userId: '{{ .SharedLoggedInViewModel.User.ID }}'})">
+<div id="summary-page" class="grow" v-scope @vue:mounted="mounted({ userId: '{{ .SharedLoggedInViewModel.User.ID }}', version: '{{ getCacheBuster }}'})">
     <div class="flex justify-end md:space-x-8 mt-12 flex-wrap md:flex-nowrap relative items-center no-print">
         {{ if $.UserDataExpiring }}
         <div class="flex-grow justify-start">
@@ -328,7 +328,7 @@
                 </a>
             </div>
             <span v-show="!activityChartSvg" class="text-md font-semibold text-muted mt-4">Loading activity chart ...</span>
-            <div v-html="activityChartSvg" class="w-full overflow-x-auto"></div>
+            <div v-html="activityChartSvg" class="wk-activity-chart w-full overflow-x-auto"></div>
         </div>
 
         {{ else }}

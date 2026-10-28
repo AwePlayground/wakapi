@@ -7,8 +7,8 @@ PetiteVue.createApp({
         if (!urlParams.has('from') && !urlParams.has('to')) return 'today'
         return null
     },
-    mounted({userId}) {
-        fetch(`api/activity/chart/${userId}.svg?dark&noattr`)
+    mounted({userId, version}) {
+        fetch(`api/activity/chart/${userId}.svg?dark&noattr&v=${version}`)
             .then(res => res.text())
             .then(data => this.activityChartSvg = data)
     }

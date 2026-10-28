@@ -123,6 +123,7 @@ footer a { text-underline-offset: 3px; }
 }
 #summary-page .top-picker { min-height: 28px; border: 1px solid var(--wk-border); }
 #summary-page canvas { max-width: 100%; }
+.wk-activity-chart svg { display: block; max-width: 100%; height: auto; }
 /* Projects */
 #projects-page > div { margin-top: 20px; }
 #projects-page h1 { margin-bottom: 10px !important; }
