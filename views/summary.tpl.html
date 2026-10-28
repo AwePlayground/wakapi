@@ -190,14 +190,11 @@
                 </div>
             </div>
 
-            <!-- OS -->
-            <div class="{{ if .IsProjectDetails }} hidden {{ end }} md:col-span-2 md:row-span-2 w-full no-break">
+            <!-- Operating systems and machines are separate heartbeat dimensions. -->
+            <div class="{{ if .IsProjectDetails }} hidden {{ end }} md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-2 w-full no-break">
                 <div class="p-4 px-6 pb-10 bg-card text-foreground rounded-md shadow flex flex-col w-full" id="os-container" style="max-height: 300px">
                     <div class="flex justify-between">
-                        <div>
-                            <span class="font-semibold text-lg w-1/2 flex-1 whitespace-nowrap mr-1 cursor-pointer">Operating Systems</span>
-                            <span class="font-semibold text-lg w-1/2 flex-1 whitespace-nowrap ml-1 cursor-pointer text-muted" onclick="swapCharts('machine', 'os')">Machines</span>
-                        </div>
+                        <span class="font-semibold text-lg whitespace-nowrap">Operating Systems</span>
                         <div class="flex justify-end flex-1 text-xs items-center">
                             <span class="mr-1">Top </span>
                             <input type="number" min="1" id="os-top-picker" data-entity="1" class="top-picker bg-focused rounded-md text-center w-12" value="10">
@@ -209,16 +206,10 @@
                         <span class="text-md font-semibold text-muted mt-4">No data</span>
                     </div>
                 </div>
-            </div>
-
-            <!-- Machines -->
-            <div class="hidden md:col-span-2 md:row-span-2 w-full no-break">
+                <!-- Machines -->
                 <div class="p-4 px-6 pb-10 bg-card text-foreground rounded-md shadow flex flex-col w-full" id="machine-container" style="max-height: 300px">
                     <div class="flex justify-between">
-                        <div>
-                            <span class="font-semibold text-lg w-1/2 flex-1 whitespace-nowrap mr-1 cursor-pointer text-muted" onclick="swapCharts('os', 'machine')">Operating Systems</span>
-                            <span class="font-semibold text-lg w-1/2 flex-1 whitespace-nowrap ml-1 cursor-pointer">Machines</span>
-                        </div>
+                        <span class="font-semibold text-lg whitespace-nowrap">Machines</span>
                         <div class="flex justify-end flex-1 text-xs items-center">
                             <span class="mr-1">Top </span>
                             <input type="number" min="1" id="machine-top-picker" data-entity="4" class="top-picker bg-focused rounded-md text-center w-12" value="10">
@@ -393,12 +384,12 @@
 
     const wakapiData = {}
     wakapiData.projects = {{ .Projects | json }}
-    wakapiData.operatingSystems = {{ .OperatingSystems | json }}
+    wakapiData.operatingSystems = mergeChartItems({{ .OperatingSystems | json }}, 'os')
     wakapiData.editors = {{ .Editors | json }}
     wakapiData.languages = {{ .Languages | json }}
     wakapiData.machines = {{ .Machines | json }}
     wakapiData.labels = {{ .Labels | json }}
-    wakapiData.categories = {{ .Categories | json }}
+    wakapiData.categories = mergeChartItems({{ .Categories | json }}, 'category')
     wakapiData.timelineStats = {{ .Timeline | json }}
     wakapiData.hourlyBreakdown = {{ .HourlyBreakdown | json }}
     wakapiData.hourlyBreakdownFromTime = {{ .HourlyBreakdownFrom | json }}
@@ -418,8 +409,8 @@
 </script>
 <script src="assets/vendor/hammer.min.js"></script>
 <script src="assets/vendor/chartjs-plugin-zoom.min.js"></script>
-<script src="assets/js/summary.js?v={{ getCacheBuster }}"></script>
 <script src="assets/js/summaryColors.js?v={{ getCacheBuster }}"></script>
+<script src="assets/js/summary.js?v={{ getCacheBuster }}"></script>
 {{ end }}
 
 </body>
