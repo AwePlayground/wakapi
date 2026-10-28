@@ -9,7 +9,7 @@
         <div class="wk-filter-popover" :class="{'is-open': open}" id="summary-filter-popover" :aria-hidden="!open">
             <div class="wk-filter-types" aria-label="Filter type">
                 <button type="button" v-for="definition in definitions" :key="definition.type" :class="{'is-active': activeType === definition.type}" @click="selectType(definition.type)">
-                    ${definition.label}<span v-if="selected[definition.type]" class="wk-filter-dot"></span>
+                    <span v-text="definition.label"></span><span v-if="selected[definition.type]" class="wk-filter-dot"></span>
                 </button>
             </div>
             <div class="wk-filter-options">
@@ -17,7 +17,7 @@
                 <input id="summary-filter-search" type="search" v-model="search" :placeholder="'Search ' + activeLabel().toLowerCase() + '…'" autocomplete="off">
                 <div class="wk-filter-option-list">
                     <button type="button" v-for="value in filteredOptions()" :key="value" :class="{'is-selected': selected[activeType] === value}" @click="update(activeType, value)">
-                        <span class="wk-option-name">${value}</span><span v-if="selected[activeType] === value" aria-hidden="true">✓</span>
+                        <span class="wk-option-name" v-text="value"></span><span v-if="selected[activeType] === value" aria-hidden="true">✓</span>
                     </button>
                     <p v-if="!filteredOptions().length">No matching options</p>
                 </div>
@@ -25,7 +25,7 @@
         </div>
         <div class="wk-active-filters" v-if="selectedEntries().length">
             <button type="button" class="wk-filter-chip" v-for="entry in selectedEntries()" :key="entry.type" @click="update(entry.type, null)" :title="'Remove ' + entry.label + ' filter'">
-                <span>${entry.label}: <strong>${entry.value}</strong></span><span aria-hidden="true">×</span>
+                <span><span v-text="entry.label"></span>: <strong v-text="entry.value"></strong></span><span aria-hidden="true">×</span>
             </button>
             <button type="button" class="wk-clear-filters" @click="clearAll">Clear all</button>
         </div>

@@ -86,8 +86,24 @@ func (h *AIHandler) GetIndex(w http.ResponseWriter, r *http.Request) {
 		vm.PriceUpdatedAt = catalog.UpdatedAt
 	}
 	vm.ChartDays = overview.Daily
-	if len(vm.ChartDays) > 30 {
-		vm.ChartDays = vm.ChartDays[len(vm.ChartDays)-30:]
+	if selected == "all" {
+		if len(vm.ChartDays) > 30 {
+			vm.ChartDays = vm.ChartDays[len(vm.ChartDays)-30:]
+		}
+	} else {
+		byDate := make(map[string]*services.AIDailyActivity, len(overview.Daily))
+		for _, day := range overview.Daily {
+			byDate[day.Date] = day
+		}
+		vm.ChartDays = make([]*services.AIDailyActivity, 0, 30)
+		for day := from.In(loc); !day.After(to.In(loc)); day = day.AddDate(0, 0, 1) {
+			key := day.Format("2006-01-02")
+			if stats := byDate[key]; stats != nil {
+				vm.ChartDays = append(vm.ChartDays, stats)
+			} else {
+				vm.ChartDays = append(vm.ChartDays, &services.AIDailyActivity{Date: key})
+			}
+		}
 	}
 	for _, day := range vm.ChartDays {
 		lines := day.AILineChanges()

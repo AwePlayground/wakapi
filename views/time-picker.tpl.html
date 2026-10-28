@@ -13,7 +13,7 @@
             <div class="wk-date-presets">
                 <span class="wk-popover-caption">Quick range</span>
                 <a v-for="preset in presets" :key="preset.key" :href="intervalLink(preset.key)" :class="{'is-active': selectedInterval === preset.key}" :data-hotkey="preset.hotkey">
-                    <span>${preset.label}</span><kbd>${preset.hotkey.toUpperCase()}</kbd>
+                    <span v-text="preset.label"></span><kbd v-text="preset.hotkey.toUpperCase()"></kbd>
                 </a>
             </div>
             <form class="wk-custom-range" id="time-picker-form" @submit.prevent="onSubmit">
