@@ -44,13 +44,23 @@
   .aio-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-bottom: 10px; border-bottom: 1px solid #38383e; }
   .aio-section-head h2 { margin: 0; color: #e7e7eb; font-size: 16px; font-weight: 450; }
   .aio-section-head span { color: #92929d; font-size: 11px; }
-  .aio-chart-frame { display: grid; grid-template-columns: 38px minmax(0, 1fr); column-gap: 10px; margin-top: 22px; }
+  .aio-chart-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px 24px; flex-wrap: wrap; margin-top: 13px; }
+  .aio-chart-legend { display: flex; align-items: center; gap: 17px; color: #c4c4cb; font-size: 11px; }
+  .aio-chart-legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .aio-chart-legend i { display: block; width: 9px; height: 9px; border-radius: 1px; }
+  .aio-chart-legend .ai { background: #a8b8ae; }
+  .aio-chart-legend .human { background: #859dbc; }
+  .aio-chart-meta-note { margin: 0; color: #898994; font-size: 11px; }
+  .aio-chart-frame { display: grid; grid-template-columns: 38px minmax(0, 1fr); column-gap: 10px; margin-top: 15px; }
   .aio-chart-axis { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; height: 180px; padding-bottom: 2px; color: #8e8e99; font-size: 10px; font-variant-numeric: tabular-nums; }
   .aio-chart { height: 180px; display: flex; align-items: end; gap: 5px; border-bottom: 1px solid #565660; background: linear-gradient(to bottom, #33333a 1px, transparent 1px) top / 100% 50% repeat-y; }
   .aio-chart-day { position: relative; height: 100%; flex: 1; min-width: 4px; display: flex; align-items: end; outline-offset: 3px; }
   .aio-chart-day:focus-visible { outline: 1px solid #cbd3ce; }
-  .aio-chart-bar { display: block; width: 100%; min-height: 1px; background: #a8b8ae; transition: background .15s ease; }
-  .aio-chart-day:hover .aio-chart-bar, .aio-chart-day:focus-visible .aio-chart-bar { background: #d3ddd6; }
+  .aio-chart-bar { display: flex; flex-direction: column-reverse; width: 100%; min-height: 1px; transition: filter .15s ease; }
+  .aio-chart-ai, .aio-chart-human { display: block; width: 100%; }
+  .aio-chart-ai { background: #a8b8ae; }
+  .aio-chart-human { background: #859dbc; }
+  .aio-chart-day:hover .aio-chart-bar, .aio-chart-day:focus-visible .aio-chart-bar { filter: brightness(1.2); }
   .aio-chart-value { position: absolute; bottom: calc(var(--bar-height) + 5px); left: 50%; transform: translateX(-50%); color: #c7d0ca; font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .aio-chart-day[data-detail]::after { content: attr(data-detail); position: absolute; z-index: 2; left: 50%; bottom: calc(var(--bar-height) + 25px); transform: translateX(-50%); display: none; width: max-content; max-width: 240px; padding: 7px 9px; border: 1px solid #56565e; border-radius: 4px; background: #28282d; color: #e6e6e9; font-size: 11px; line-height: 1.4; white-space: pre-line; box-shadow: 0 8px 20px #0008; }
   .aio-chart-day:hover::after, .aio-chart-day:focus-visible::after { display: block; }
@@ -106,9 +116,10 @@
     <div class="aio-card aio-metric"><div class="aio-metric-head"><span class="aio-label">Prompts</span><span class="aio-mark"></span></div><strong>{{ .Compact $totals.PromptEvents }}</strong><small>{{ .Compact $totals.PromptChars }} typed characters</small></div>
     <div class="aio-card aio-metric"><div class="aio-metric-head"><span class="aio-label">AI sessions</span><span class="aio-mark"></span></div><strong>{{ .Compact $totals.AISessions }}</strong><small>Distinct reported session IDs</small></div>
   </section>
-  <section class="aio-card aio-section" aria-label="AI line changes over time">
-    <div class="aio-section-head"><h2>Activity over time</h2><span>{{ .RangeLabel }} · {{ if eq .SelectedRange "all" }}monthly{{ else }}daily{{ end }} AI line changes</span></div>
-    {{ if gt .MaxChartLines 0 }}<div class="aio-chart-frame"><div class="aio-chart-axis" aria-hidden="true"><span>{{ .Compact .MaxChartLines }}</span><span>{{ .Compact .HalfChartLines }}</span><span>0</span></div><div class="aio-chart">{{ range $i, $bucket := .ChartBuckets }}<div class="aio-chart-day" tabindex="0" style="--bar-height:{{ $.ChartBarHeight $bucket }}%" aria-label="{{ $.ChartPeriod $bucket.Date }}: {{ $bucket.AILines }} AI line changes, {{ $bucket.HumanAdded }} human additions, {{ $bucket.HumanDeleted }} human deletions" data-detail="{{ $.ChartPeriod $bucket.Date }}: {{ $bucket.AILines }} AI lines&#10;Human: +{{ $bucket.HumanAdded }} / −{{ $bucket.HumanDeleted }}">{{ if eq $.SelectedRange "7d" }}<span class="aio-chart-value">{{ $.Compact $bucket.AILines }}</span>{{ end }}<span class="aio-chart-bar" style="height:{{ $.ChartBarHeight $bucket }}%"></span></div>{{ end }}</div><div class="aio-chart-dates">{{ range $i, $bucket := .ChartBuckets }}<span>{{ if $.ShowChartLabel $i }}{{ $.ChartDate $bucket.Date }}{{ end }}</span>{{ end }}</div></div>{{ else }}<p class="aio-empty">No AI line changes in this range.</p>{{ end }}
+  <section class="aio-card aio-section" aria-label="AI and human line changes over time">
+    <div class="aio-section-head"><h2>Line changes over time</h2><span>{{ .RangeLabel }} · {{ if eq .SelectedRange "all" }}monthly{{ else }}daily{{ end }} totals</span></div>
+    <div class="aio-chart-meta"><div class="aio-chart-legend" aria-label="Chart colors"><span><i class="ai" aria-hidden="true"></i>AI</span><span><i class="human" aria-hidden="true"></i>Human</span></div><p class="aio-chart-meta-note">Reported line changes only; missing human activity is not inferred.</p></div>
+    {{ if gt .MaxChartLines 0 }}<div class="aio-chart-frame"><div class="aio-chart-axis" aria-hidden="true"><span>{{ .Compact .MaxChartLines }}</span><span>{{ .Compact .HalfChartLines }}</span><span>0</span></div><div class="aio-chart">{{ range $i, $bucket := .ChartBuckets }}<div class="aio-chart-day" tabindex="0" style="--bar-height:{{ $.ChartBarHeight $bucket }}%" aria-label="{{ $.ChartPeriod $bucket.Date }}: {{ $bucket.AILines }} AI line changes, {{ $bucket.HumanLines }} human line changes" data-detail="{{ $.ChartPeriod $bucket.Date }}&#10;AI: {{ $bucket.AILines }} lines&#10;Human: {{ $bucket.HumanLines }} lines (+{{ $bucket.HumanAdded }} / −{{ $bucket.HumanDeleted }})">{{ if eq $.SelectedRange "7d" }}<span class="aio-chart-value">{{ $.Compact $bucket.TotalLines }}</span>{{ end }}<span class="aio-chart-bar" style="height:{{ $.ChartBarHeight $bucket }}%"><span class="aio-chart-ai" style="height:{{ $bucket.AIShare }}%"></span><span class="aio-chart-human" style="height:{{ $bucket.HumanShare }}%"></span></span></div>{{ end }}</div><div class="aio-chart-dates">{{ range $i, $bucket := .ChartBuckets }}<span>{{ if $.ShowChartLabel $i }}{{ $.ChartDate $bucket.Date }}{{ end }}</span>{{ end }}</div></div>{{ else }}<p class="aio-empty">No reported line changes in this range.</p>{{ end }}
   </section>
   <div class="aio-breakdown">
     <section class="aio-card aio-section" aria-label="AI models"><div class="aio-section-head"><h2>Models</h2><span>By AI line changes</span></div>{{ if .Overview.Models }}<div class="aio-list">{{ range $i, $model := .Overview.Models }}{{ if lt $i 8 }}<div class="aio-list-row"><span class="aio-list-name" title="{{ $model.Name }}">{{ $model.Name }}<span class="aio-list-detail">{{ $.Compact $model.TotalInputTokens }} input tokens</span></span><span class="aio-list-number">{{ $.Compact $model.AILineChanges }} lines</span></div>{{ end }}{{ end }}</div>{{ else }}<p class="aio-empty">No model data in this range.</p>{{ end }}</section>

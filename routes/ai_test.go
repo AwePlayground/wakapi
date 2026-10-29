@@ -77,3 +77,21 @@ func TestBuildAIChartBucketsSevenDaysIncludesInactiveDates(t *testing.T) {
 		t.Fatalf("wrong daily counts around active date: %#v %#v", buckets[2], buckets[3])
 	}
 }
+
+func TestAIChartBucketIncludesReportedHumanLines(t *testing.T) {
+	bucket := &AIChartBucket{AILines: 80, HumanAdded: 12, HumanDeleted: 8}
+	if bucket.HumanLines() != 20 || bucket.TotalLines() != 100 {
+		t.Fatalf("wrong line totals: human=%d total=%d", bucket.HumanLines(), bucket.TotalLines())
+	}
+	if bucket.AIShare() != 80 || bucket.HumanShare() != 20 {
+		t.Fatalf("wrong chart segments: AI=%d%% human=%d%%", bucket.AIShare(), bucket.HumanShare())
+	}
+	vm := &AIOverviewViewModel{MaxChartLines: 100}
+	if vm.ChartBarHeight(bucket) != 100 {
+		t.Fatalf("stacked bar height = %d, want 100", vm.ChartBarHeight(bucket))
+	}
+	onlyHuman := &AIChartBucket{HumanAdded: 5}
+	if onlyHuman.AIShare() != 0 || onlyHuman.HumanShare() != 100 || vm.ChartBarHeight(onlyHuman) != 5 {
+		t.Fatalf("human-only bucket not represented: %#v", onlyHuman)
+	}
+}

@@ -41,6 +41,28 @@ type AIChartBucket struct {
 	HumanDeleted int64
 }
 
+func (bucket *AIChartBucket) HumanLines() int64 {
+	return bucket.HumanAdded + bucket.HumanDeleted
+}
+
+func (bucket *AIChartBucket) TotalLines() int64 {
+	return bucket.AILines + bucket.HumanLines()
+}
+
+func (bucket *AIChartBucket) AIShare() int {
+	if bucket.TotalLines() == 0 {
+		return 0
+	}
+	return int(math.Round(float64(bucket.AILines) * 100 / float64(bucket.TotalLines())))
+}
+
+func (bucket *AIChartBucket) HumanShare() int {
+	if bucket.TotalLines() == 0 {
+		return 0
+	}
+	return 100 - bucket.AIShare()
+}
+
 func NewAIHandler(db *gorm.DB, userService services.IUserService) *AIHandler {
 	pricingFile := os.Getenv("WAKAPI_AI_PRICING_PATH")
 	if pricingFile == "" {
@@ -94,8 +116,8 @@ func (h *AIHandler) GetIndex(w http.ResponseWriter, r *http.Request) {
 	}
 	vm.ChartBuckets = buildAIChartBuckets(overview.Daily, from, to, selected, loc)
 	for _, bucket := range vm.ChartBuckets {
-		if bucket.AILines > vm.MaxChartLines {
-			vm.MaxChartLines = bucket.AILines
+		if bucket.TotalLines() > vm.MaxChartLines {
+			vm.MaxChartLines = bucket.TotalLines()
 		}
 	}
 	if err := templates[conf.AIOverviewTemplate].Execute(w, vm); err != nil {
@@ -228,7 +250,7 @@ func (vm *AIOverviewViewModel) ChartBarHeight(bucket *AIChartBucket) int {
 	if vm.MaxChartLines <= 0 {
 		return 0
 	}
-	value := bucket.AILines
+	value := bucket.TotalLines()
 	if value == 0 {
 		return 0
 	}
