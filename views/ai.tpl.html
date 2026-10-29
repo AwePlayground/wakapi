@@ -26,14 +26,21 @@
   .aio-line-stat-head span:last-child { color: #9999a4; font-variant-numeric: tabular-nums; }
   .aio-line-stat strong { display: block; margin-top: 7px; color: #f4f4f5; font-size: clamp(24px, 2.2vw, 32px); font-weight: 450; letter-spacing: -.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
   .aio-line-stat small { display: block; margin-top: 5px; color: #92929d; font-size: 11px; }
-  .aio-line-track { height: 2px; margin-top: 17px; background: #4a4a51; }
-  .aio-line-track span { display: block; height: 100%; background: #a8b8ae; }
+  .aio-meter { display: flex; height: 5px; overflow: hidden; border-radius: 3px; background: #4c5058; }
+  .aio-meter span { display: block; height: 100%; flex: none; }
+  .aio-line-track { margin-top: 17px; }
+  .aio-meter .aio-meter-ai { background: #a8b8ae; }
+  .aio-meter .aio-meter-human { background: #859dbc; }
+  .aio-meter-key { display: inline-flex; align-items: center; gap: 6px; }
+  .aio-meter-key::before { content: ""; width: 7px; height: 7px; flex: none; border-radius: 2px; background: var(--key-color); }
+  .aio-meter-key-ai, .aio-meter-key-priced { --key-color: #a8b8ae; }
+  .aio-meter-key-human { --key-color: #859dbc; }
+  .aio-meter-key-unpriced { --key-color: #4c5058; }
   .aio-caption { margin: 7px 0 0; color: #a2a2ac; font-size: 12px; line-height: 1.5; }
   .aio-line-detail { margin: 10px 0 0; color: #92929e; font-size: 11px; }
   .aio-cost-value { display: block; margin-top: 11px; color: #f4f4f5; font-size: clamp(30px, 2.8vw, 38px); font-weight: 450; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; }
-  .aio-coverage { display: flex; justify-content: space-between; gap: 14px; margin: 18px 0 7px; color: #aaaab3; font-size: 11px; }
-  .aio-track { height: 2px; background: #3e3e45; }
-  .aio-track span { display: block; height: 100%; background: #a8b8ae; }
+  .aio-coverage { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 14px; margin: 18px 0 7px; color: #aaaab3; font-size: 11px; }
+  .aio-track { margin-top: 2px; }
   .aio-note { margin: 12px 0 0; color: #8f8f9a; font-size: 11px; line-height: 1.55; }
   .aio-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 32px; }
   .aio-metric { min-width: 0; padding: 0 0 14px; border-bottom: 1px solid #38383e; }
@@ -95,18 +102,18 @@
     <section class="aio-card aio-feature aio-share" aria-label="Attributed AI and human line changes">
       <span class="aio-label">Attributed line changes</span>
       <div class="aio-line-stats">
-        <div class="aio-line-stat"><div class="aio-line-stat-head"><span>AI</span><span>{{ .AIShare }}%</span></div><strong>{{ .Compact $totals.AILineChanges }}</strong><small>lines changed</small></div>
-        <div class="aio-line-stat"><div class="aio-line-stat-head"><span>Human</span><span>{{ .HumanShare }}%</span></div><strong>{{ .Compact .HumanLineChanges }}</strong><small>lines changed</small></div>
+        <div class="aio-line-stat"><div class="aio-line-stat-head"><span class="aio-meter-key aio-meter-key-ai">AI</span><span>{{ .AIShare }}%</span></div><strong>{{ .Compact $totals.AILineChanges }}</strong><small>lines changed</small></div>
+        <div class="aio-line-stat"><div class="aio-line-stat-head"><span class="aio-meter-key aio-meter-key-human">Human</span><span>{{ .HumanShare }}%</span></div><strong>{{ .Compact .HumanLineChanges }}</strong><small>lines changed</small></div>
       </div>
-      <div class="aio-line-track" role="img" aria-label="{{ .AIShare }} percent AI and {{ .HumanShare }} percent human attributed line changes"><span style="width:{{ .AIShare }}%"></span></div>
+      <div class="aio-meter aio-line-track" role="img" aria-label="{{ .AIShare }} percent AI and {{ .HumanShare }} percent human attributed line changes"><span class="aio-meter-ai" style="width:{{ .AIShare }}%"></span><span class="aio-meter-human" style="width:{{ .HumanShare }}%"></span></div>
       <p class="aio-line-detail">Human: +{{ .Compact $totals.HumanLinesAdded }} additions · −{{ .Compact $totals.HumanLinesDeleted }} deletions</p>
     </section>
     <section class="aio-card aio-feature aio-cost" aria-label="Estimated AI cost">
       <span class="aio-label">Estimated token cost</span>
       {{ if and .HasPricing (gt .Cost.PricedTokens 0) }}<strong class="aio-cost-value">{{ .Dollars .Cost.EstimatedUSD }}</strong>{{ else }}<strong class="aio-cost-value">Unavailable</strong>{{ end }}
       <p class="aio-caption">At current public list prices · estimate only</p>
-      <div class="aio-coverage"><span>{{ .CostCoverage }}% of tokens priced</span><span>{{ .Compact .Cost.UnpricedTokens }} unpriced</span></div>
-      <div class="aio-track" role="img" aria-label="{{ .CostCoverage }} percent of reported tokens have a known price"><span style="width:{{ .CostCoverage }}%"></span></div>
+      <div class="aio-coverage"><span class="aio-meter-key aio-meter-key-priced">{{ .CostCoverage }}% priced</span><span class="aio-meter-key aio-meter-key-unpriced">{{ .Compact .Cost.UnpricedTokens }} unpriced tokens</span></div>
+      <div class="aio-meter aio-track" role="img" aria-label="{{ .CostCoverage }} percent of reported tokens have a known price"><span class="aio-meter-ai" style="width:{{ .CostCoverage }}%"></span></div>
       <p class="aio-note">Generic model labels use declared version assumptions. Historical activity uses today's prices. {{ if .HasPricing }}Prices updated {{ .PriceUpdatedAt }}.{{ else }}No price catalog is available yet.{{ end }}</p>
     </section>
   </div>
