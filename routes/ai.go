@@ -30,8 +30,15 @@ type AIOverviewViewModel struct {
 	RangeLabel     string
 	PriceUpdatedAt string
 	HasPricing     bool
-	ChartDays      []*services.AIDailyActivity
-	MaxDailyLines  int64
+	ChartBuckets   []*AIChartBucket
+	MaxChartLines  int64
+}
+
+type AIChartBucket struct {
+	Date         string
+	AILines      int64
+	HumanAdded   int64
+	HumanDeleted int64
 }
 
 func NewAIHandler(db *gorm.DB, userService services.IUserService) *AIHandler {
@@ -85,35 +92,71 @@ func (h *AIHandler) GetIndex(w http.ResponseWriter, r *http.Request) {
 	if catalog != nil {
 		vm.PriceUpdatedAt = catalog.UpdatedAt
 	}
-	vm.ChartDays = overview.Daily
-	if selected == "all" {
-		if len(vm.ChartDays) > 30 {
-			vm.ChartDays = vm.ChartDays[len(vm.ChartDays)-30:]
-		}
-	} else {
-		byDate := make(map[string]*services.AIDailyActivity, len(overview.Daily))
-		for _, day := range overview.Daily {
-			byDate[day.Date] = day
-		}
-		vm.ChartDays = make([]*services.AIDailyActivity, 0, 30)
-		for day := from.In(loc); !day.After(to.In(loc)); day = day.AddDate(0, 0, 1) {
-			key := day.Format("2006-01-02")
-			if stats := byDate[key]; stats != nil {
-				vm.ChartDays = append(vm.ChartDays, stats)
-			} else {
-				vm.ChartDays = append(vm.ChartDays, &services.AIDailyActivity{Date: key})
-			}
-		}
-	}
-	for _, day := range vm.ChartDays {
-		lines := day.AILineChanges()
-		if lines > vm.MaxDailyLines {
-			vm.MaxDailyLines = lines
+	vm.ChartBuckets = buildAIChartBuckets(overview.Daily, from, to, selected, loc)
+	for _, bucket := range vm.ChartBuckets {
+		if bucket.AILines > vm.MaxChartLines {
+			vm.MaxChartLines = bucket.AILines
 		}
 	}
 	if err := templates[conf.AIOverviewTemplate].Execute(w, vm); err != nil {
 		conf.Log().Request(r).Error("failed to render AI overview", "error", err)
 	}
+}
+
+func buildAIChartBuckets(daily []*services.AIDailyActivity, from, to time.Time, selected string, loc *time.Location) []*AIChartBucket {
+	if loc == nil {
+		loc = time.UTC
+	}
+	if selected == "all" {
+		if len(daily) == 0 {
+			return nil
+		}
+		first, err := time.ParseInLocation("2006-01-02", daily[0].Date, loc)
+		if err != nil {
+			return nil
+		}
+		byMonth := make(map[string]*AIChartBucket)
+		for _, day := range daily {
+			month := day.Date[:7]
+			bucket := byMonth[month]
+			if bucket == nil {
+				bucket = &AIChartBucket{Date: month + "-01"}
+				byMonth[month] = bucket
+			}
+			bucket.AILines += day.AILineChanges()
+			bucket.HumanAdded += day.HumanLinesAdded
+			bucket.HumanDeleted += day.HumanLinesDeleted
+		}
+		start := time.Date(first.Year(), first.Month(), 1, 0, 0, 0, 0, loc)
+		endLocal := to.In(loc)
+		end := time.Date(endLocal.Year(), endLocal.Month(), 1, 0, 0, 0, 0, loc)
+		buckets := make([]*AIChartBucket, 0, (end.Year()-start.Year())*12+int(end.Month()-start.Month())+1)
+		for month := start; !month.After(end); month = month.AddDate(0, 1, 0) {
+			key := month.Format("2006-01")
+			if bucket := byMonth[key]; bucket != nil {
+				buckets = append(buckets, bucket)
+			} else {
+				buckets = append(buckets, &AIChartBucket{Date: key + "-01"})
+			}
+		}
+		return buckets
+	}
+	byDate := make(map[string]*services.AIDailyActivity, len(daily))
+	for _, day := range daily {
+		byDate[day.Date] = day
+	}
+	buckets := make([]*AIChartBucket, 0, 30)
+	for day := from.In(loc); !day.After(to.In(loc)); day = day.AddDate(0, 0, 1) {
+		key := day.Format("2006-01-02")
+		bucket := &AIChartBucket{Date: key}
+		if stats := byDate[key]; stats != nil {
+			bucket.AILines = stats.AILineChanges()
+			bucket.HumanAdded = stats.HumanLinesAdded
+			bucket.HumanDeleted = stats.HumanLinesDeleted
+		}
+		buckets = append(buckets, bucket)
+	}
+	return buckets
 }
 
 func resolveAIOverviewRange(selected string, now time.Time, loc *time.Location) (time.Time, time.Time, string) {
@@ -181,29 +224,49 @@ func (vm *AIOverviewViewModel) CostCoverage() int {
 	return int(math.Round(float64(vm.Cost.PricedTokens) * 100 / float64(total)))
 }
 
-func (vm *AIOverviewViewModel) DailyBarHeight(day *services.AIDailyActivity) int {
-	if vm.MaxDailyLines <= 0 {
+func (vm *AIOverviewViewModel) ChartBarHeight(bucket *AIChartBucket) int {
+	if vm.MaxChartLines <= 0 {
 		return 0
 	}
-	value := day.AILineChanges()
+	value := bucket.AILines
 	if value == 0 {
 		return 0
 	}
-	return max(4, int(math.Round(float64(value)*100/float64(vm.MaxDailyLines))))
+	return max(4, int(math.Round(float64(value)*100/float64(vm.MaxChartLines))))
 }
 
-func (vm *AIOverviewViewModel) ShortDay(date string) string {
+func (vm *AIOverviewViewModel) ChartDate(date string) string {
 	parsed, err := time.Parse("2006-01-02", date)
 	if err != nil {
 		return date
 	}
+	if vm.SelectedRange == "all" {
+		return parsed.Format("Jan '06")
+	}
 	return parsed.Format("01/02")
 }
 
-func (vm *AIOverviewViewModel) HalfDailyLines() int64 {
-	return vm.MaxDailyLines / 2
+func (vm *AIOverviewViewModel) ChartPeriod(date string) string {
+	parsed, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		return date
+	}
+	if vm.SelectedRange == "all" {
+		return parsed.Format("January 2006")
+	}
+	return date
 }
 
-func (vm *AIOverviewViewModel) ShowDailyLabel(index int) bool {
-	return vm.SelectedRange == "7d" || index%5 == 0 || index == len(vm.ChartDays)-1
+func (vm *AIOverviewViewModel) HalfChartLines() int64 {
+	return vm.MaxChartLines / 2
+}
+
+func (vm *AIOverviewViewModel) ShowChartLabel(index int) bool {
+	if vm.SelectedRange == "7d" {
+		return true
+	}
+	if vm.SelectedRange == "all" {
+		return index%3 == 0 || index == len(vm.ChartBuckets)-1
+	}
+	return index%5 == 0 || index == len(vm.ChartBuckets)-1
 }
