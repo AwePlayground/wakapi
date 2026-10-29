@@ -155,11 +155,22 @@ func (vm *AIOverviewViewModel) Dollars(value float64) string {
 
 func (vm *AIOverviewViewModel) AIShare() int {
 	ai := vm.Overview.Totals.AILineChanges()
-	human := vm.Overview.Totals.HumanLinesAdded + vm.Overview.Totals.HumanLinesDeleted
+	human := vm.HumanLineChanges()
 	if ai+human == 0 {
 		return 0
 	}
 	return int(math.Round(float64(ai) * 100 / float64(ai+human)))
+}
+
+func (vm *AIOverviewViewModel) HumanLineChanges() int64 {
+	return vm.Overview.Totals.HumanLinesAdded + vm.Overview.Totals.HumanLinesDeleted
+}
+
+func (vm *AIOverviewViewModel) HumanShare() int {
+	if vm.Overview.Totals.AILineChanges()+vm.HumanLineChanges() == 0 {
+		return 0
+	}
+	return 100 - vm.AIShare()
 }
 
 func (vm *AIOverviewViewModel) CostCoverage() int {

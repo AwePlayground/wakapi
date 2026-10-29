@@ -19,11 +19,17 @@
   .aio-feature { min-width: 0; padding: 18px 0 20px; }
   .aio-feature + .aio-feature { border-left: 1px solid #38383e; padding-left: 24px; }
   .aio-label { color: #a9a9b2; font-size: 12px; font-weight: 400; }
-  .aio-share-content { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-top: 11px; }
-  .aio-big { display: block; color: #f4f4f5; font-size: clamp(30px, 2.8vw, 38px); font-weight: 450; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; }
-  .aio-secondary-number { color: #d8d8df; font-size: 17px; font-weight: 400; font-variant-numeric: tabular-nums; }
+  .aio-line-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 16px; }
+  .aio-line-stat { min-width: 0; }
+  .aio-line-stat + .aio-line-stat { padding-left: 18px; border-left: 1px solid #38383e; }
+  .aio-line-stat-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; color: #babac2; font-size: 12px; }
+  .aio-line-stat-head span:last-child { color: #9999a4; font-variant-numeric: tabular-nums; }
+  .aio-line-stat strong { display: block; margin-top: 7px; color: #f4f4f5; font-size: clamp(24px, 2.2vw, 32px); font-weight: 450; letter-spacing: -.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .aio-line-stat small { display: block; margin-top: 5px; color: #92929d; font-size: 11px; }
+  .aio-line-track { height: 2px; margin-top: 17px; background: #4a4a51; }
+  .aio-line-track span { display: block; height: 100%; background: #a8b8ae; }
   .aio-caption { margin: 7px 0 0; color: #a2a2ac; font-size: 12px; line-height: 1.5; }
-  .aio-tag { display: block; margin-top: 13px; color: #92929e; font-size: 11px; }
+  .aio-line-detail { margin: 10px 0 0; color: #92929e; font-size: 11px; }
   .aio-cost-value { display: block; margin-top: 11px; color: #f4f4f5; font-size: clamp(30px, 2.8vw, 38px); font-weight: 450; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; }
   .aio-coverage { display: flex; justify-content: space-between; gap: 14px; margin: 18px 0 7px; color: #aaaab3; font-size: 11px; }
   .aio-track { height: 2px; background: #3e3e45; }
@@ -63,7 +69,7 @@
   .aio-method strong { color: #b8b8c0; font-weight: 500; }
   @media(max-width: 900px) { .aio-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media(max-width: 700px) { .aio-main { margin-top: 22px; } .aio-header { align-items: stretch; } .aio-hero, .aio-breakdown { grid-template-columns: 1fr; } .aio-hero { gap: 0; } .aio-feature + .aio-feature { border-left: 0; border-top: 1px solid #38383e; padding-left: 0; } .aio-range { width: 100%; justify-content: space-between; } }
-  @media(max-width: 480px) { .aio-metrics { gap: 18px; } .aio-chart, .aio-chart-dates { gap: 3px; } .aio-chart-frame { grid-template-columns: 31px minmax(0, 1fr); column-gap: 6px; } .aio-chart-value { font-size: 9px; } .aio-chart-dates { font-size: 8px; } }
+  @media(max-width: 480px) { .aio-metrics { gap: 18px; } .aio-line-stats { gap: 12px; } .aio-line-stat + .aio-line-stat { padding-left: 12px; } .aio-chart, .aio-chart-dates { gap: 3px; } .aio-chart-frame { grid-template-columns: 31px minmax(0, 1fr); column-gap: 6px; } .aio-chart-value { font-size: 9px; } .aio-chart-dates { font-size: 8px; } }
 </style>
 <main class="aio-main grow" id="ai-overview-page">
   <header class="aio-header">
@@ -76,13 +82,14 @@
   </header>
   {{ $totals := .Overview.Totals }}
   <div class="aio-hero">
-    <section class="aio-card aio-feature aio-share" aria-label="AI share of tracked line changes">
-      <span class="aio-label">AI share of tracked line changes</span>
-      <div class="aio-share-content">
-        <div><strong class="aio-big">{{ .AIShare }}%</strong><p class="aio-caption">of attributed line changes</p></div>
-        <div><strong class="aio-secondary-number">{{ .Compact $totals.AILineChanges }}</strong><p class="aio-caption">AI line changes</p></div>
+    <section class="aio-card aio-feature aio-share" aria-label="Attributed AI and human line changes">
+      <span class="aio-label">Attributed line changes</span>
+      <div class="aio-line-stats">
+        <div class="aio-line-stat"><div class="aio-line-stat-head"><span>AI</span><span>{{ .AIShare }}%</span></div><strong>{{ .Compact $totals.AILineChanges }}</strong><small>lines changed</small></div>
+        <div class="aio-line-stat"><div class="aio-line-stat-head"><span>Human</span><span>{{ .HumanShare }}%</span></div><strong>{{ .Compact .HumanLineChanges }}</strong><small>lines changed</small></div>
       </div>
-      <span class="aio-tag">{{ .Compact $totals.HumanLinesAdded }} human additions · {{ .Compact $totals.HumanLinesDeleted }} human deletions</span>
+      <div class="aio-line-track" role="img" aria-label="{{ .AIShare }} percent AI and {{ .HumanShare }} percent human attributed line changes"><span style="width:{{ .AIShare }}%"></span></div>
+      <p class="aio-line-detail">Human: +{{ .Compact $totals.HumanLinesAdded }} additions · −{{ .Compact $totals.HumanLinesDeleted }} deletions</p>
     </section>
     <section class="aio-card aio-feature aio-cost" aria-label="Estimated AI cost">
       <span class="aio-label">Estimated token cost</span>
